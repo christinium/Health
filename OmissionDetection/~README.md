@@ -23,19 +23,11 @@ This tool uses Large Language Models (LLMs) to detect omissions in medical docum
 
 
 ### Validation Approach
-- **Ground Truth**: How were omissions validated? (e.g., expert physician review, inter-rater reliability)
+- **Ground Truth**: Omissions were validated based on a single clinician evaluation (me)
 - **Metrics**: 
   - Precision/Recall of omission detection
   - Cohen's Kappa for severity classification agreement
   - Correlation between severity scores and clinical outcomes (if available)
-
-### Study Design
-- Number of encounters analyzed: [X]
-- Clinical specialties represented: [list]
-- Transcript sources: [e.g., simulated patients, real encounters]
-- IRB approval status and ethical considerations
-2. Limitations & Model Behavior
-markdown## Known Limitations
 
 ### Model-Specific Issues
 - **Hallucination Risk**: Model may identify "omissions" not actually present in transcript
