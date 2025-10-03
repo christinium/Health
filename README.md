@@ -5,6 +5,44 @@ This repository, Health, contains two distinct research projects that explore th
 ## Projects
 
 ### 1. EchoProject
+Project Type: Research Implementation | Status: Technical Validation Complete
+#### Overview
+A fine-tuned LLM system that extracts 19 structured cardiac features from unstructured echocardiogram reports. The project demonstrates that task-specific fine-tuning dramatically outperforms zero-shot prompting for specialized medical text extraction, achieving near-perfect accuracy (99.88%) with minimal computational resources.
+
+#### Technical Approach
+- **Base Model**: Gemma-2B-it (2 billion parameter instruction-tuned model)
+- **Method**: Supervised fine-tuning on 30,831 labeled echocardiogram reports
+- **Architecture**: Causal language modeling with instruction-following format
+- **Training**: 2 epochs, bfloat16 precision, single NVIDIA A100 GPU (~2 hours)
+- **Output**: Structured labels for 19 cardiac features including chamber sizes, valve conditions, and functional assessments
+
+#### Key Innovation
+Demonstrates that small, domain-specific fine-tuned models can achieve production-ready performance for medical text extraction where prompt engineering fails. The fine-tuned 2B model improved accuracy by 90 percentage points over prompt-only approaches and reduced parsing failures from 51% to 0.02%, establishing fine-tuning as essential for reliable medical NLP systems.
+
+#### Performance Metrics
+- **Fine-tuned Model**: 99.88% per-label accuracy, 98.08% exact match (all 19 labels correct)
+- **Prompt-only Baseline**: 9.87% per-label accuracy, 0% exact match, 51.23% parsing failures
+- **Reliability**: <0.02% failed predictions, ensuring consistent structured output
+- **Robustness**: >99.5% accuracy across all 19 cardiac features
+
+#### Clinical Relevance
+Automates extraction of structured data from free-text echo reports, enabling:
+- Clinical decision support systems
+- Research cohort identification
+- Quality metrics extraction
+- Automated database population
+
+#### Current Limitations
+- **Dataset-specific**: Trained on MIMIC-III echocardiograms; generalization to other institutions unknown
+- **Structured reports only**: Designed for standardized echo report formatpercentages)
+- **Simple language**: The reports have relatively simple language; generalization to more complicated language unknown
+
+#### Dataset
+Echo Note to Num v1.0.0 from PhysioNet (44,047 MIMIC-III echocardiogram reports with 19 labeled cardiac features). Dataset access requires completion of CITI training on human subjects research.
+
+#### Next Steps
+Validation on more complicated notes, evaluation of larger model variants (Gemma-9B) for potential accuracy improvements.
+
 
 ### 2. Omission Detection
 Project Type: Proof of Concept | Status: Requires Clinical Validation
