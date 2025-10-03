@@ -21,10 +21,6 @@ This tool uses Large Language Models (LLMs) to detect omissions in medical docum
 - **Batch Processing**: Handles multiple transcript-note pairs efficiently
 - **CSV Export**: Outputs detailed classification results for analysis
 
-For a clinician scientist interview focused on LLM competency, you should add several key sections that demonstrate deeper technical understanding and research rigor. Here's what I'd recommend adding:
-Additional Sections to Add:
-1. Methodology & Validation
-markdown## Methodology
 
 ### Validation Approach
 - **Ground Truth**: How were omissions validated? (e.g., expert physician review, inter-rater reliability)
