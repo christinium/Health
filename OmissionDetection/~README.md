@@ -21,6 +21,45 @@ This tool uses Large Language Models (LLMs) to detect omissions in medical docum
 - **Batch Processing**: Handles multiple transcript-note pairs efficiently
 - **CSV Export**: Outputs detailed classification results for analysis
 
+For a clinician scientist interview focused on LLM competency, you should add several key sections that demonstrate deeper technical understanding and research rigor. Here's what I'd recommend adding:
+Additional Sections to Add:
+1. Methodology & Validation
+markdown## Methodology
+
+### Validation Approach
+- **Ground Truth**: How were omissions validated? (e.g., expert physician review, inter-rater reliability)
+- **Metrics**: 
+  - Precision/Recall of omission detection
+  - Cohen's Kappa for severity classification agreement
+  - Correlation between severity scores and clinical outcomes (if available)
+
+### Study Design
+- Number of encounters analyzed: [X]
+- Clinical specialties represented: [list]
+- Transcript sources: [e.g., simulated patients, real encounters]
+- IRB approval status and ethical considerations
+2. Limitations & Model Behavior
+markdown## Known Limitations
+
+### Model-Specific Issues
+- **Hallucination Risk**: Model may identify "omissions" not actually present in transcript
+- **Context Window**: 32k tokens may be insufficient for very long encounters
+- **Consistency**: GPT-4 responses are non-deterministic; same input may yield different omissions
+- **Domain Specificity**: Model not fine-tuned on medical data; relies on general medical knowledge
+
+### Clinical Limitations
+- Cannot assess clinical judgment (what *should* be omitted for brevity)
+- No understanding of documentation standards specific to specialties
+- Cannot distinguish between truly missing vs. intentionally excluded information
+- Binary comparison doesn't account for paraphrasing or summarization
+
+### Mitigation Strategies
+- Temperature setting: [What did you use? Default is 1.0]
+- Multiple runs and consensus scoring (if implemented)
+- Human review of Critical classifications
+
+
+
 ## Technical Details
 
 ### LLM Model
@@ -97,6 +136,83 @@ Example:
 - GPT-4-32k supports up to 32,768 tokens
 - Average transcript: 5,000-15,000 characters
 - Automatic segmentation for longer transcripts
+
+### Prompt Design Principles
+
+1. **Sequential Processing**: Omission identification happens before classification to reduce cognitive load on the model
+2. **Role-Based Prompting**: Uses physician persona to leverage domain-specific reasoning
+3. **Explicit Constraints**: Clear guidelines prevent hallucination and maintain clinical relevance
+4. **Structured Output**: CSV format enables programmatic processing and scoring
+5. **Context Preservation**: Keeps transcript and note together to maintain clinical context
+
+### Alternative Approaches Considered
+
+| Approach | Pros | Cons | Why Not Used |
+|----------|------|------|--------------|
+| Rule-based NLP | Interpretable, fast, deterministic | Requires extensive feature engineering, brittle | Poor generalization to varied documentation styles |
+| Traditional ML (BERT) | Lower cost, fine-tunable | Needs large labeled dataset | Insufficient labeled training data for this task |
+| GPT-3.5 | Lower cost | Weaker medical reasoning | Testing showed inadequate clinical nuance |
+| Open-source (Llama-2) | Privacy, cost | Lower performance on medical tasks | Privacy less critical for research POC |
+
+### Why GPT-4-32k?
+- Extended context window handles long transcripts + full HPI (up to 32,768 tokens)
+- Superior reasoning for medical content and complex clinical scenarios
+- Better instruction-following for structured CSV output
+- Strong zero-shot performance without need for fine-tuning
+
+## Limitations & Validation Needs
+
+### Current Limitations
+
+#### Model-Specific:
+- **Hallucination Risk**: Model may identify "omissions" not actually present in transcript - requires expert validation
+- **Non-deterministic**: Same input may yield different results across runs (temperature > 0)
+- **No Fine-tuning**: Relies on general medical knowledge, not trained on institution-specific documentation standards
+- **Black Box**: Difficult to understand why specific omissions are identified or classified
+
+#### Clinical:
+- Cannot assess clinical judgment about appropriate summarization
+- No understanding of specialty-specific documentation norms
+- Cannot distinguish truly missing vs. intentionally excluded information
+- Binary comparison doesn't account for acceptable paraphrasing
+- May not capture implicit clinical reasoning documented elsewhere in note
+
+#### Methodological:
+- No ground truth for omission identification
+- Severity categories not clinically validated
+- Scoring system weights (3/1/0) are arbitrary
+- Weighted severity normalization by character count untested
+
+### Validation Requirements
+
+#### Before Clinical Use:
+1. **Expert Review**: Clinicians must review sample of identified omissions for:
+   - Accuracy (true positive rate)
+   - Clinical relevance (are these actually important?)
+   - Severity appropriateness (do categories align with clinical judgment?)
+
+2. **Inter-rater Reliability**: 
+   - Multiple clinicians independently classify omissions
+   - Calculate Cohen's Kappa or Fleiss' Kappa
+   - Target: κ > 0.60 for acceptable agreement
+
+3. **Specialty Validation**:
+   - Test across different specialties (primary care, cardiology, psychiatry, etc.)
+   - Assess if omission patterns and severity differ meaningfully
+
+4. **Prospective Testing**:
+   - Apply to new encounters not used in development
+   - Measure clinical utility: would knowing these omissions change care?
+
+5. **Reproducibility**:
+   - Test with temperature = 0 for deterministic outputs
+   - Multiple runs with same input to assess consistency
+
+### Known Edge Cases
+- Very long transcripts (>20,000 characters) may exceed context limits
+- Transcripts with significant off-topic conversation
+- Notes with extensive use of medical abbreviations
+- Encounters where significant portions are non-verbal
 
 ## Requirements
 
