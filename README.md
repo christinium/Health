@@ -34,7 +34,6 @@ Automates extraction of structured data from free-text echo reports, enabling:
 
 #### Current Limitations
 - **Dataset-specific**: Trained on MIMIC-III echocardiograms; generalization to other institutions unknown
-- **Structured reports only**: Designed for standardized echo report formatpercentages)
 - **Simple language**: The reports have relatively simple language; generalization to more complicated language unknown
 
 #### Dataset
