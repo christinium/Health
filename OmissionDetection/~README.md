@@ -141,15 +141,6 @@ Example:
 4. **Structured Output**: CSV format enables programmatic processing and scoring
 5. **Context Preservation**: Keeps transcript and note together to maintain clinical context
 
-### Alternative Approaches Considered
-
-| Approach | Pros | Cons | Why Not Used |
-|----------|------|------|--------------|
-| Rule-based NLP | Interpretable, fast, deterministic | Requires extensive feature engineering, brittle | Poor generalization to varied documentation styles |
-| Traditional ML (BERT) | Lower cost, fine-tunable | Needs large labeled dataset | Insufficient labeled training data for this task |
-| GPT-3.5 | Lower cost | Weaker medical reasoning | Testing showed inadequate clinical nuance |
-| Open-source (Llama-2) | Privacy, cost | Lower performance on medical tasks | Privacy less critical for research POC |
-
 ### Why GPT-4-32k?
 - Extended context window handles long transcripts + full HPI (up to 32,768 tokens)
 - Superior reasoning for medical content and complex clinical scenarios
@@ -167,16 +158,13 @@ Example:
 - **Black Box**: Difficult to understand why specific omissions are identified or classified
 
 #### Clinical:
-- Cannot assess clinical judgment about appropriate summarization
-- No understanding of specialty-specific documentation norms
+- Have not yet verified with clinical judgment about appropriate summarization
+- There may be different specialty-specific documentation norms
 - Cannot distinguish truly missing vs. intentionally excluded information
-- Binary comparison doesn't account for acceptable paraphrasing
-- May not capture implicit clinical reasoning documented elsewhere in note
 
 #### Methodological:
-- No ground truth for omission identification
+- Need more robust evaluation for ground truth for omission identification
 - Severity categories not clinically validated
-- Scoring system weights (3/1/0) are arbitrary
 - Weighted severity normalization by character count untested
 
 ### Validation Requirements
@@ -189,8 +177,6 @@ Example:
 
 2. **Inter-rater Reliability**: 
    - Multiple clinicians independently classify omissions
-   - Calculate Cohen's Kappa or Fleiss' Kappa
-   - Target: κ > 0.60 for acceptable agreement
 
 3. **Specialty Validation**:
    - Test across different specialties (primary care, cardiology, psychiatry, etc.)
