@@ -8,72 +8,87 @@ Echocardiography reports are essential for understanding cardiac health, but the
 - **Technical challenge:** Clinical notes are lengthy, noisy, and heterogeneous. Extracting structured features requires handling unstructured text at scale.
 - **Goal:** Compare the performance of fine-tuned LLMs vs. prompt-only approaches in extracting echocardiography features.
 
+## Task Description
+
+The task involves extracting **19 cardiac features** from unstructured echocardiogram reports and classifying each feature using a standardized coding schema. These features include:
+
+- Left atrium (LA) cavity size, right atrium (RA) dilation
+- Left ventricle (LV) systolic function, cavity size, wall thickness
+- Right ventricle (RV) cavity, systolic function, wall thickness
+- Valve conditions: aortic (AV), mitral (MV), and tricuspid (TV) stenosis and regurgitation
+- Pulmonary hypertension, RA pressure
+- LV diastolic function, RV volume/pressure overload
+
 ## Data
 
 - **Source:** MIMIC-III echocardiography notes (restricted access).
 - **Derived dataset:** PhysioNet Echo Note to Num, containing aligned notes and structured echocardiographic features.
+- **Total samples:** 45,794 echocardiogram reports (44,047 after cleaning)
+- **Dataset splits:** 
+  - Training: 30,831 samples (70%)
+  - Validation: 6,608 samples (15%)
+  - Test: 6,608 samples (15%)
 
 **Preprocessing:**
-- Parsed reports and extracted the echocardiography findings section to reduce sequence length.
-- Tokenized text using the model’s tokenizer.
-- Split into train / tune / test sets.
+- Extracted echocardiography findings section to reduce sequence length
+- Removed duplicates and reports with missing data
+- Filtered reports by length (100-4096 characters)
+- Tokenized text using Gemma's tokenizer (max length: 2048 tokens)
+- Formatted as instruction-following prompts with structured output
 
 ## Models and Training
 
 ### 1. Fine-Tuned Model (Supervised Fine-Tuning - SFT)
-- **Base Model:** Gemma (open LLM, lightweight transformer-based architecture).
-- **Frameworks:** Hugging Face transformers, PyTorch.
-- **Task:** Multi-label classification of echocardiography findings from free text.
+- **Base Model:** Gemma-2B-it (2 billion parameter instruction-tuned model)
+- **Frameworks:** HuggingFace Transformers, PyTorch
+- **Task:** Multi-label classification of 19 echocardiography findings from free text
 
-**Training Details:**
+**Training Configuration:**
 - Optimizer: AdamW
-- Scheduler: linear warmup + decay
-- Epochs: 3
-- Batch size: 8
-- Learning rate: 5e-5
-- Hardware: single GPU (Colab environment)
+- Learning rate: 2e-4
+- Weight decay: 0.01
+- Warmup steps: 500
+- Epochs: 2
+- Batch size: 8 per device
+- Precision: bfloat16
+- Hardware: Single NVIDIA A100 GPU (Colab environment)
+- Training time: ~2 hours
+
+**Data Format:**
+```
+<start_of_turn>user
+Analyze this echocardiogram report and provide assessment values for each cardiac feature...
+Report:
+[Echo report text]<end_of_turn>
+<start_of_turn>model
+LA_cavity: 0
+RA_dilated: 0
+...
+<end_of_turn>
+```
 
 **Evaluation Metrics:**
-- Accuracy
-- Macro F1-score
-- Per-class precision/recall
+- Per-label accuracy
+- Exact match accuracy (all 19 labels correct)
+- Failed prediction rate
 
 ### 2. Prompt-Only Model
-- **Base Model:** Gemma (zero-shot / few-shot prompting).
-- **Method:** Designed prompts to instruct the model to output structured labels.
+- **Base Model:** Gemma-2B-it (zero-shot prompting)
+- **Method:** Detailed prompts with medical context instructing the model to output structured labels
 
 **Challenges:**
-- Outputs inconsistent in both format and terminology.
-- Required regex post-processing for normalization.
-- Performance significantly lower than fine-tuned models.
+- Outputs inconsistent in both format and terminology
+- Required regex post-processing for normalization
+- High failure rate (~50%) producing unparseable outputs
 
 ## Results
 
-| Method           | Accuracy      | Notes                                                      |
-|------------------|--------------|------------------------------------------------------------|
-| Fine-tuned SFT   | High (>90%)  | Stable performance across compartments, consistent output. |
-| Prompt-only      | Lower (~60–70%) | Unreliable formatting, weaker per-class performance.     |
+### Performance Comparison (Strict Evaluation)
 
-**Key finding:** Task-specific fine-tuning enables smaller LLMs to achieve strong performance, outperforming zero-shot prompting approaches.
+**Strict evaluation methodology:** Failed predictions (unparseable outputs) are counted as incorrect, reflecting real-world deployment scenarios where any parsing failure would prevent clinical use.
 
-## Repository Contents
+| Method           | Average Per-Label Accuracy | Exact Match Accuracy | Failed Predictions |
+|------------------|---------------------------|----------------------|-------------------|
+| **Fine-tuned SFT**   | **99.88%** | **98.08%** | **0.02%** |
+| **Prompt-only**      | **9.87%** | **0.00%** | **51.23%** |
 
-- `echo_note_training_final.ipynb` — Fine-tuning workflow (data prep, training, validation)
-- `Gemma_prompt_only_echo_label.ipynb` — Prompt-based experiments with regex post-processing
-- `Analyze_Echo_Performance.ipynb` — Model evaluation and visualization of results
-
-## Future Work
-
-- Compare against domain-specific medical LLMs (e.g., Med-PaLM, ClinicalGPT)
-- Explore handling of long-sequence notes with models like Longformer or LLaMA-2-Long
-- Apply approach to more diverse, free-form clinical text beyond echocardiography
-
-## References
-
-- **Dataset:** PhysioNet Echo Note to Num
-- **Publication:** [PubMed 40617839](https://pubmed.ncbi.nlm.nih.gov/40617839/)
-
----
-
-**In summary:**  
-This project highlights a practical workflow for fine-tuning open LLMs to extract structured data from clinical free-text, demonstrating that even modestly sized models can outperform prompt-only methods when applied to medical NLP tasks.
