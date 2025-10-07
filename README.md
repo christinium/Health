@@ -1,6 +1,6 @@
 # Health Project Repository
 
-This repository, Health, contains two distinct research projects that explore the capabilities of Large Language Models (LLMs) for the detection and mitigation of complex informational and behavioral issues within social contexts (physician visit), alongside the interpretation of imaging findings from diagnostic reports.
+This repository contains two distinct research projects exploring Large Language Model (LLM) capabilities for medical documentation: structured data extraction from imaging reports and detection of clinical omissions in patient notes.
 
 ## Projects
 
@@ -60,78 +60,79 @@ Automates extraction of structured data from free-text echo reports, enabling:
 
 ---
 
-### 2. Omission Detection
+### 2. Omission Detection System
 
 #### Overview
-An LLM-based tool that automatically identifies clinically relevant information missing from AI-generated medical notes by comparing History of Present Illness (HPI) sections against full patient visit transcripts. The system classifies omissions by severity (Critical, Moderate, Optional) and generates quantitative documentation quality scores.
+A zero-shot LLM system that detects clinically relevant omissions in medical documentation using a clinical safety-first evaluation framework. Unlike traditional NLP metrics (BLEU/ROUGE) that focus on textual similarity, this system evaluates completeness based on clinical impact, achieving sub-human error rates.
 
-#### Technical Approach
-- **Model**: GPT-4-32k via Azure OpenAI
-- **Architecture**: Two-stage prompt engineering strategy
-  - Stage 1: Identifies missing clinical information from HPI by comparing against transcript
-  - Stage 2: Classifies each omission by clinical severity with reasoning
-- **Output**: Structured CSV with omission descriptions, severity levels, and clinical justifications
+#### Goal & Objective
+**Goal**: Improve the quality and completeness of medical documentation  
+**Objective**: Automatically detect clinically relevant details from transcripts that are missing from the HPI section of medical notes
 
 #### Key Innovation
-Uses sequential LLM processing to separate omission detection from severity classification, reducing cognitive load on the model and improving classification accuracy. Employs role-based prompting with explicit clinical constraints to minimize hallucination and maintain relevance.
-
-#### Clinical Relevance
-- Evaluates completeness of AI-generated medical documentation
-- Provides systematic, scalable quality assessment framework
-- Generates explainable outputs with clinical reasoning
-- Potential applications:
-  - Auditing ambient AI scribes and documentation assistants
-  - Training medical students on comprehensive history-taking
-  - Quality improvement metrics for clinical documentation
-  - Identifying systematic documentation gaps across providers
-
-#### Current Limitations
-- **Not clinically validated**: Requires expert physician review and inter-rater reliability testing
-- **Prompt-based approach**: Unlike EchoProject, uses prompt engineering without fine-tuning; may benefit from supervised learning on validated omission labels
-- **Non-deterministic**: Outputs vary across runs (temperature > 0)
-- **No ground truth**: Severity classifications based on model reasoning, not validated clinical criteria
-- **Context-dependent**: May not generalize across medical specialties or documentation styles
-
-#### Next Steps
-- Clinical validation study with multi-specialty expert physician review
-- Establishment of gold-standard omission severity labels
-- Assessment of clinical utility in real-world documentation workflows
-- Exploration of fine-tuning approach (following EchoProject methodology) to improve consistency and accuracy
-- Inter-rater reliability testing between LLM classifications and physician assessments
-
-
-
-### 2. Omission Detection
-Project Type: Proof of Concept | Status: Requires Clinical Validation
-
-#### Overview
-An LLM-based tool that automatically identifies clinically relevant information missing from AI-generated medical notes by comparing History of Present Illness (HPI) sections against full patient visit transcripts. The system classifies omissions by severity (Critical, Moderate, Optional) and generates quantitative documentation quality scores.
+Traditional metrics like BLEU and ROUGE are insufficient for clinical workflows because they measure surface-level similarity rather than semantic understanding and clinical relevance. This system prioritizes **clinical impact over linguistic similarity**, ensuring patient safety through a three-tiered risk classification framework.
 
 #### Technical Approach
+- **Model**: GPT-4 with zero-shot learning (no fine-tuning required)
+- **Method**: Chain-of-thought prompting for enhanced reasoning
+- **Validation**: Clinician-in-the-loop for accuracy verification
+- **Pipeline**: 
+  1. Extract omitted content using GPT-4
+  2. Classify omissions by clinical importance
+  3. Score and format outputs into structured CSVs
 
-- **Model**: GPT-4-32k via Azure OpenAI
-- **Architecture**: Two-stage prompt engineering strategy
-  - Stage 1: Identifies missing clinical information from HPI by comparing against transcript
-  - Stage 2: Classifies each omission by clinical severity with reasoning
-- **Output**: Structured CSV with omission descriptions, severity levels, and clinical justifications
+#### Omission Definition
+An **omission** is the absence of important information that should have been included in the patient's medical record. Missing information qualifies as an omission only if it is:
+- Clinically relevant and necessary for understanding the patient's condition
+- Potentially impactful on clinical decision-making and patient care
+- Beneficial for enhancing the patient-physician relationship
 
-#### Key Innovation
-Uses sequential LLM processing to separate omission detection from severity classification, reducing cognitive load on the model and improving classification accuracy. Employs role-based prompting with explicit clinical constraints to minimize hallucination and maintain relevance.
+**Note**: Missing information that doesn't meet these criteria is NOT considered an omission.
+
+#### Three-Tiered Risk Classification
+
+**Critical**
+- Missing information that significantly impacts clinical decision-making or patient safety
+- Could lead to diagnostic errors or inappropriate treatment decisions
+
+**Moderate**
+- Important context or supplemental information not critical to immediate decision-making
+- Includes factors affecting physician-patient relationship (trust, communication, understanding)
+- Example: Not documenting patient concerns or treatment preferences
+
+**Optional**
+- Useful but not necessary for clinical decision-making
+- Minor nuances that don't significantly impact understanding of patient's condition
+
+#### Evaluation Metrics
+
+**Basic Metrics:**
+- **Errors per Note**: Average number of omissions per note
+- **Errors per Length of Transcript**: Omissions normalized by transcript length
+
+**Weighted Metrics** (prioritizes severity):
+- Critical Errors: 2 points
+- Moderate Errors: 1 point  
+- Optional Errors: 0 points
+
+*Example*: 2 critical + 1 moderate + 0 optional = (2×2) + (1×1) + (0×0) = **5 weighted points**
+
+- **Weighted Errors per Note**: Severity-weighted errors per note
+- **Weighted Errors per Length**: Weighted errors per 10,000 words
 
 #### Clinical Relevance
-- Evaluates completeness of AI-generated medical documentation
-- Provides systematic, scalable quality assessment framework
-- Generates explainable outputs with clinical reasoning
-- Potential applications:
-  - Auditing ambient AI scribes
-  - Training medical students
-  - Quality improvement metrics
+Ensures that:
+- Critical medical information is never omitted
+- Generated summaries are clinically safe and actionable
+- Patient care quality is maintained or improved
+- Administrative burden is reduced without compromising safety
 
-#### Current Limitations
-- **Not clinically validated**: Requires expert physician review and inter-rater reliability testing
-- **Non-deterministic**: Outputs vary across runs (temperature > 0)
-- **No ground truth**: Severity classifications based on model reasoning, not validated criteria
-- **Context-dependent**: May not generalize across specialties or documentation styles
+#### Current Status
+**Proof of Concept** - Demonstrates viability of clinically-informed metrics for medical documentation evaluation
 
 #### Next Steps
-Clinical validation study with multi-specialty expert review, establishment of gold-standard labels, and assessment of clinical utility in real-world documentation workflows.
+- Improve prompts by adding additional examples to enhance accuracy
+- Clinical validation with a panel of clinicians to verify real-world applicability
+
+#### Reference
+For more details on the evaluation framework: [A framework to assess clinical safety and hallucination rates of LLMs for medical text summarisation](https://www.nature.com/articles/s41746-025-01670-7) - *npj Digital Medicine* (2025)
