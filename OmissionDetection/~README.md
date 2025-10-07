@@ -3,7 +3,7 @@
 
 ## TL;DR
 
-Traditional NLP metrics (BLEU/ROUGE) don't work for clinical workflows. This system uses a clinical safety-first approach with zero-shot learning and chain-of-thought prompting to detect omissions in medical text—achieving **sub-human error rates**.
+Traditional NLP metrics (BLEU/ROUGE) don't work for clinical workflows. This system uses a clinical safety-first approach with zero-shot learning and chain-of-thought prompting to detect omissions in medical text.
 
 **Goal**: Improve the quality and completeness of medical documentation  
 **Objective**: Automatically detect clinically relevant details from transcripts that are missing from the HPI section of medical notes
