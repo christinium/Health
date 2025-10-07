@@ -247,5 +247,8 @@ Output: Classified omissions + weighted severity scores
 ---
 
 ## Reference
+For more details on the clinical safety evaluation framework and related medical LLM research:
 
-For more details on the clinical safety evaluation framework: [A framework to assess clinical safety and hallucination rates of LLMs for medical text summarisation](https://www.nature.com/articles/s41746-025-01670-7) - *npj Digital Medicine* (2025)
+1. [A framework to assess clinical safety and hallucination rates of LLMs for medical text summarisation](https://www.nature.com/articles/s41746-025-01670-7) - *npj Digital Medicine* (2025)
+2. [Medical foundation large language models for comprehensive text analysis and beyond](https://www.nature.com/articles/s41746-025-01533-1) - *npj Digital Medicine* (2025)
+
